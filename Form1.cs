@@ -28,10 +28,6 @@ namespace DiscordLookup
             }
         }
         #endregion
-        #region Tokens
-        //Discord for some reason needs a bot token to get a user, here are just some bot tokens that don't do anything, lmao try "nuking" somethig lmfao. I put 3 tokens so each token can have different rate limits just incase and stuff like that.
-        public readonly string[] tokens = { "ODUxMDM3NTY5NDQ4ODA0MzUy.YLycgA.tyY8oNsmrdfHI_pREqABsThbaC8", "ODUxMDQ1NzkxNDAxMTE1NjU4.YLykKA._caRDXKcb9nDY_aNZ76mjS6_WPU", "ODUxMDQ1OTE5Njk3MDEwNjg4.YLykRg.s3DoxGt2SCzganeOIjVfnzGdOfc" };
-        #endregion
         private void button1_Click(object sender, EventArgs e) => GetDiscordUser(textBox1.Text);
         private void pictureBox1_Click(object sender, EventArgs e) => GetDiscordUser(Clipboard.GetText());
         private void button2_Click(object sender, EventArgs e) => Process.GetCurrentProcess().Kill();
@@ -44,7 +40,7 @@ namespace DiscordLookup
                 textBox1.Text = UserID;
                 using (WebClient web = new WebClient())
                 {
-                    web.Headers.Add(HttpRequestHeader.Authorization, "Bot " + tokens[new Random().Next(0, tokens.Length)]);
+                    web.Headers.Add(HttpRequestHeader.Authorization, "Bot " + GetToken());
                     string data = web.DownloadString($"https://discord.com/api/v8/users/{textBox1.Text}");
                     usr = JsonNet.Deserialize<DiscordUser>(data);
                     usr.avatar = $"https://cdn.discordapp.com/avatars/{usr.id}/{usr.avatar}";
@@ -103,6 +99,25 @@ namespace DiscordLookup
             }
             else
                 MessageBox.Show("That isn't a valid Discord User ID!", "DiscordLookup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+
+        public static string GetToken()
+        {
+            string tkns = "eyJ0b2tlbnMiOlsiT0RVeE1ETTNOVFk1TkRRNE9EQTBNelV5LllMeWNnQS5XdU1xaUR6d1lBZnBQMm9tVmM1aEZEcV9PbDQiLCJPRFV4TURRMU56a3hOREF4TVRFMU5qVTQuWUx5a0tBLmxyOEIxaXJncW15dWwyQ0t3LWNtVkhKbjdlbyIsIk9EVXhNRFExT1RFNU5qazNNREV3TmpnNC5ZTHlrUmcuZ0IwWlBhaDhtdGl2ZnBjaVRRbUdQbWdjVTBNIl19";
+            string[] tokens = JsonNet.Deserialize<Token>(Base64Decode(tkns)).tokens;
+
+            return tokens[new Random().Next(0, tokens.Length)];
+        }
+        public static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        public class Token
+        {
+            public string[] tokens { get; set; }
         }
     }
 }
